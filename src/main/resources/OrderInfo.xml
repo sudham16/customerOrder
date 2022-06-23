@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beanio xmlns="http://www.beanio.org/2012/03">
+ <stream name="orderInfo" format="csv">
+ <parser>
+   <property name="delimiter" value="|" />
+   <property name="lineSeparator" value="\n" />
+   <property name="whitespaceAllowed" value="true" />
+  </parser>
+  <record name="accountInfo" class="com.camel.adi.model.input.AccountInfo" maxOccurs="1">
+   <!-- 'rid' indicates this field is used to identify the record -->
+   <field name="recordId" rid="true" literal="A" />
+   <field name="accountId"/>
+   <!-- 'format' can be used to provide Date and Number formats -->
+   <field name="orderDate" type="date" format="dd-MM-yyyy" />
+   <field name="accountType"/>
+  </record>
+  <record name="itemInfo" minOccurs="1" maxOccurs="unbounded"
+   class="com.camel.adi.model.input.ItemInfo">
+   <field name="recordId" rid="true" literal="I" />
+   <field name="itemId" />
+   <field name="itemType" />
+   <field name="itemName" />
+   <field name="itemQuantity" />
+   <field name="itemPrice" />
+  </record>
+  <record name="deliveryInfo"  maxOccurs="1"
+   class="com.camel.adi.model.input.DeliveryInfo">
+   <field name="recordId" rid="true" literal="D" />
+   <field name="deliveryAddress" />
+   <field name="city" />
+   <field name="state" />
+   <field name="pincode" />
+   <field name="phoneNo" />
+  </record>
+ </stream>
+</beanio>
+ 
