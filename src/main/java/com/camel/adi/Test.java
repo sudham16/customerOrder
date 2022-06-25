@@ -17,9 +17,6 @@ import com.camel.adi.model.input.OrderInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class Test {
-
-
-
 	public static OrderInfo getOrderInfo(String val) {
 		// TODO Auto-generated method stub
 		

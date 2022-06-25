@@ -15,6 +15,7 @@ public class Address {
     private String city;
     @JsonProperty(value="delivery-state")
     private String state;
-    private String mobileno;
+    @JsonProperty(value="mobileno")
+    private String phoneNo;
     private String pincode;
 }

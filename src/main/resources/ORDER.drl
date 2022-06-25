@@ -1,0 +1,82 @@
+import com.camel.adi.model.output.CustomerOrder
+import com.camel.adi.model.output.OrderItem
+import com.camel.adi.model.output.TotalAmount;
+import java.util.Calendar
+import org.apache.commons.lang.StringUtils;
+
+dialect  "mvel"
+
+function void setTotalAmount(CustomerOrder co,Double itemAmt,double shippingCharge){
+System.out.println("In total amt "+itemAmt);
+TotalAmount totalAmount= co.getTotalAmount();
+if( totalAmount == null){
+totalAmount= new TotalAmount();
+}
+totalAmount.setShippingCharge(shippingCharge);
+totalAmount.setItemAmount(itemAmt);
+totalAmount.setOrderTotal(shippingCharge+itemAmt);
+co.setTotalAmount(totalAmount);
+}
+
+
+rule "Calculate Grocery discount" salience 8
+    when
+        orderItems:CustomerOrder($orders : orders);
+        value : OrderItem() from $orders
+        Boolean(booleanValue == true) from value.itemType == "Grocery"
+   then
+
+        String itemDiscount = String.format("%,.2f",value.getItemDiscount()+((value.getItemPrice()*1)/100));
+        value.setItemDiscount(Double.parseDouble(itemDiscount));
+        String itemTotalAmt= String.format("%,.2f",value.getItemPrice()-value.getItemDiscount());
+        value.setItemTotalAmount(Double.parseDouble(itemTotalAmt));
+
+ end
+
+rule "Calculate Book discount" salience 8
+    when
+        orderItems:CustomerOrder($orders : orders);
+        value : OrderItem() from $orders
+        Boolean(booleanValue == true) from value.itemType == "Book"
+   then
+     String itemDiscount = String.format("%,.2f",value.getItemDiscount()+((value.getItemPrice()*5)/100));
+     value.setItemDiscount(Double.parseDouble(itemDiscount));
+     String itemTotalAmt= String.format("%,.2f",value.getItemPrice()-value.getItemDiscount());
+     value.setItemTotalAmount(Double.parseDouble(itemTotalAmt));
+ end
+
+rule "Calculate Total Amount" salience 1
+    when
+        curOrder:CustomerOrder()
+        orderItems:CustomerOrder($orders : orders);
+        Number( total : doubleValue ) from accumulate( OrderItem( $itemTotalAmount:itemTotalAmount) from $orders, sum($itemTotalAmount))
+        if (total > 1000) break[zeroShipping]
+   then
+        System.out.println("In Calculate total amount");
+        setTotalAmount(curOrder,total,100);
+   then[zeroShipping]
+            System.out.println("In Calculate total amount then");
+            setTotalAmount(curOrder,total,0);
+ end
+
+
+
+rule "Calculate Discount for Weekday or Weekend" salience 10
+    when
+        curOrder:CustomerOrder($weekDay:weekDay)
+        orderItems:CustomerOrder($orders : orders);
+         value : OrderItem() from $orders
+         if($weekDay == true) break[weekday]
+   then
+        String itemDiscount = String.format("%,.2f",value.getItemDiscount()+((value.getItemPrice()*5)/100));
+        value.setItemDiscount(Double.parseDouble(itemDiscount));
+        String itemTotalAmt= String.format("%,.2f",value.getItemPrice()-value.getItemDiscount());
+        value.setItemTotalAmount(Double.parseDouble(itemTotalAmt));
+
+   then[weekday]
+   System.out.println("In weekday discount");
+            String itemDiscount = String.format("%,.2f",value.getItemDiscount()+((value.getItemPrice()*2)/100));
+            value.setItemDiscount(Double.parseDouble(itemDiscount));
+            String itemTotalAmt= String.format("%,.2f",value.getItemPrice()-value.getItemDiscount());
+            value.setItemTotalAmount(Double.parseDouble(itemTotalAmt));
+ end

@@ -23,4 +23,9 @@ public class CustomerOrder {
 
     @JsonIgnore
     private Date orderDate;
+
+    @JsonIgnore
+    private boolean weekDay;
+
+
 }

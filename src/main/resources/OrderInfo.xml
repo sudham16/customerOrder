@@ -20,8 +20,8 @@
    <field name="itemId" />
    <field name="itemType" />
    <field name="itemName" />
-   <field name="itemQuantity" />
-   <field name="itemPrice" />
+   <field name="itemQuantity" type="int" />
+   <field name="itemPrice" type="double"/>
   </record>
   <record name="deliveryInfo"  maxOccurs="1"
    class="com.camel.adi.model.input.DeliveryInfo">
